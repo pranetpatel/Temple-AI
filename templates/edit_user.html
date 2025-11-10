@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit User</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 2rem; }
+    form { display: grid; gap: .75rem; max-width: 360px; }
+    label { display: grid; gap: .25rem; }
+    input { padding: .6rem .75rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+    button { padding: .7rem .9rem; border: none; border-radius: 6px; background: #0a7; color: #fff; font-weight: 600; cursor: pointer; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <a href="/admin" class="muted">← Back to Admin</a>
+  <h1>Edit User: {{ user[2] }}</h1>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <label>
+      <span>Name</span>
+      <input type="text" name="name" value="{{ user[1] }}" required />
+    </label>
+    <label>
+      <span>Email</span>
+      <input type="email" name="email" value="{{ user[6] }}" required />
+    </label>
+    <label>
+      <span>Age</span>
+      <input type="number" name="age" value="{{ user[3] }}" min="0" required />
+    </label>
+    <label>
+      <span>Gender</span>
+      <select name="gender" required>
+        <option value="Male" {% if user[4] == 'Male' %}selected{% endif %}>Male</option>
+        <option value="Female" {% if user[4] == 'Female' %}selected{% endif %}>Female</option>
+        <option value="Non-binary" {% if user[4] == 'Non-binary' %}selected{% endif %}>Non-binary</option>
+        <option value="Other" {% if user[4] == 'Other' %}selected{% endif %}>Other</option>
+        <option value="Prefer not to say" {% if user[4] == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+      </select>
+    </label>
+    <label>
+      <span>New Password (leave blank to keep)</span>
+      <input type="password" name="password" />
+    </label>
+    <button type="submit">Save Changes</button>
+  </form>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Feedback Metrics</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 2rem; color: #222; }
+    h1 { color: #0a7; }
+    .cards { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+    .card { flex: 1 1 200px; background: #f8f9fa; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .card h2 { margin: 0 0 .5rem 0; font-size: 1.1rem; color: #555; }
+    .card .value { font-size: 1.8rem; font-weight: 700; }
+    .card .sub { color: #777; font-size: .9rem; }
+    canvas { max-width: 100%; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+  <a href="/admin">← Back to Admin</a>
+  <h1>Feedback Metrics Dashboard</h1>
+
+  <div class="cards">
+    <div class="card">
+      <h2>Total Feedback</h2>
+      <div class="value">{{ total_feedback }}</div>
+      <div class="sub">All feedback entries recorded</div>
+    </div>
+    <div class="card">
+      <h2>Accuracy</h2>
+      <div class="value">
+        {% if accuracy is not none %}
+          {{ '%.1f'|format(accuracy) }}%
+        {% else %}
+          N/A
+        {% endif %}
+      </div>
+      <div class="sub">% of feedback marked “Good”</div>
+    </div>
+    <div class="card">
+      <h2>Positive</h2>
+      <div class="value" style="color:#0a7;">{{ positive_feedback }}</div>
+      <div class="sub">“Good” responses</div>
+    </div>
+    <div class="card">
+      <h2>Negative</h2>
+      <div class="value" style="color:#c0392b;">{{ negative_feedback }}</div>
+      <div class="sub">“Needs Improvement” responses</div>
+    </div>
+  </div>
+
+  <h2>Program Recommendation Frequency</h2>
+  <canvas id="programHistogram" height="300"></canvas>
+
+  <h2 style="margin-top:2rem;">Feedback Trend Over Time</h2>
+  <canvas id="feedbackTrend" height="300"></canvas>
+
+  <!-- Data blobs for Chart.js -->
+  <script type="application/json" id="program-labels">{{ program_labels|tojson }}</script>
+  <script type="application/json" id="program-counts">{{ program_counts|tojson }}</script>
+  <script type="application/json" id="trend-dates">{{ trend_dates|tojson }}</script>
+  <script type="application/json" id="trend-positive">{{ trend_positive|tojson }}</script>
+  <script type="application/json" id="trend-negative">{{ trend_negative|tojson }}</script>
+
+  <script>
+    // Program histogram
+    const programLabels = JSON.parse(document.getElementById('program-labels').textContent || '[]');
+    const programCounts = JSON.parse(document.getElementById('program-counts').textContent || '[]');
+    const programData = {
+      labels: programLabels,
+      datasets: [{
+        label: 'Feedback Count',
+        data: programCounts,
+        backgroundColor: '#0a7'
+      }]
+    };
+
+    new Chart(document.getElementById('programHistogram'), {
+      type: 'bar',
+      data: programData,
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          title: { display: false }
+        },
+        scales: {
+          x: { beginAtZero: true },
+          y: { ticks: { autoSkip: false } }
+        }
+      }
+    });
+
+    // Feedback trend
+    const trendDates = JSON.parse(document.getElementById('trend-dates').textContent || '[]');
+    const trendPositive = JSON.parse(document.getElementById('trend-positive').textContent || '[]');
+    const trendNegative = JSON.parse(document.getElementById('trend-negative').textContent || '[]');
+    const trendData = {
+      labels: trendDates,
+      datasets: [
+        {
+          label: 'Positive',
+          data: trendPositive,
+          borderColor: '#0a7',
+          backgroundColor: 'rgba(10, 167, 118, 0.2)',
+          tension: 0.25
+        },
+        {
+          label: 'Negative',
+          data: trendNegative,
+          borderColor: '#c0392b',
+          backgroundColor: 'rgba(192, 57, 43, 0.2)',
+          tension: 0.25
+        }
+      ]
+    };
+
+    new Chart(document.getElementById('feedbackTrend'), {
+      type: 'line',
+      data: trendData,
+      options: {
+        plugins: {
+          title: { display: false }
+        },
+        scales: {
+          x: {
+            ticks: { autoSkip: true, maxTicksLimit: 10 }
+          },
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+

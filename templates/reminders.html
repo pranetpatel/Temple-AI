@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reminder Management</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 2rem; color: #222; }
+    h1 { color: #0a7; }
+    .controls { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }
+    th, td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #0a7; color: #fff; }
+    button { padding: .5rem .75rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #0a7; color: #fff; }
+    .btn-secondary { background: #f59e0b; color: #fff; }
+    .btn-danger { background: #c0392b; color: #fff; }
+    a { color: #0a7; text-decoration: none; }
+    .empty { text-align: center; padding: 2rem; color: #777; }
+    .flash-message { padding: .5rem; border-radius: 4px; margin-bottom: 1rem; }
+    .flash-success { background: #d4edda; color: #155724; }
+    .flash-error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <a href="/admin">← Back to Admin</a>
+  <h1>Reminder Management</h1>
+  <p>Users who haven't visited in the last {{ days_threshold }} days</p>
+
+  <div class="controls">
+    <form method="get" style="display:inline;">
+      <label>Days threshold: <input type="number" name="days" value="{{ days_threshold }}" min="1" style="width:60px;padding:.3rem;" /></label>
+      <button type="submit" class="btn-primary">Filter</button>
+    </form>
+    {% if inactive_users %}
+    <form method="post" action="/admin/send-reminders-bulk" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="days" value="{{ days_threshold }}" />
+      <button type="submit" class="btn-secondary" onclick="return confirm('Send reminders to all {{ inactive_users|length }} inactive users?');">Send Reminders to All</button>
+    </form>
+    {% endif %}
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div>
+        {% for category, message in messages %}
+          <div class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% if inactive_users %}
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Last Visit</th>
+        <th>Total Visits</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in inactive_users %}
+      <tr>
+        <td><strong>{{ user.name }}</strong></td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.last_visit }}</td>
+        <td>{{ user.total_visits }}</td>
+        <td>
+          <form method="post" action="/admin/send-reminder/{{ user.username }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+            <button type="submit" class="btn-primary">Send Reminder</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No inactive users found! Everyone has visited within the last {{ days_threshold }} days. 🙏</div>
+  {% endif %}
+</body>
+</html>
+

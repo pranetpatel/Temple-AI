@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Settings</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 2rem; color: #222; }
+    h1 { color: #0a7; }
+    .form-group { margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    input[type="text"], input[type="password"], select { width: 100%; max-width: 400px; padding: .5rem; border: 1px solid #ddd; border-radius: 4px; }
+    input[type="checkbox"] { width: auto; margin-right: 0.5rem; }
+    .toggle-group { display: flex; align-items: center; gap: 0.5rem; }
+    button { padding: .5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; background: #0a7; color: #fff; }
+    button:hover { background: #088; }
+    .status { padding: .75rem; border-radius: 6px; margin-bottom: 1rem; }
+    .status-success { background: #d4edda; color: #155724; }
+    .status-warning { background: #fff3cd; color: #856404; }
+    .status-info { background: #d1ecf1; color: #0c5460; }
+    a { color: #0a7; text-decoration: none; }
+    .help-text { font-size: 0.9rem; color: #666; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <a href="/admin">← Back to Admin</a>
+  <h1>AI & LLM Settings</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div>
+        {% for category, message in messages %}
+          <div class="status status-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="status status-info">
+    <strong>AI Engine Status:</strong> {{ ai_engine_status }}
+  </div>
+
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    
+    <div class="form-group">
+      <div class="toggle-group">
+        <input type="checkbox" id="llm_enabled" name="llm_enabled" {% if llm_enabled %}checked{% endif %} />
+        <label for="llm_enabled" style="display:inline; margin:0;">Enable LLM Features</label>
+      </div>
+      <div class="help-text">
+        When enabled, the system will use AI to generate sermon outlines and menu suggestions based on demographics.
+        <strong>This feature is opt-in and off by default.</strong> No personal identifiers are sent to the LLM API.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="llm_provider">LLM Provider</label>
+      <select id="llm_provider" name="llm_provider">
+        <option value="openai" {% if llm_provider == 'openai' %}selected{% endif %}>OpenAI (GPT-3.5-turbo)</option>
+        <option value="anthropic" {% if llm_provider == 'anthropic' %}selected{% endif %}>Anthropic (Claude Haiku)</option>
+      </select>
+      <div class="help-text">Choose which LLM service to use for content generation.</div>
+    </div>
+
+    <div class="form-group">
+      <label for="llm_api_key">API Key</label>
+      <input type="password" id="llm_api_key" name="llm_api_key" value="{{ llm_api_key if llm_api_key else '' }}" placeholder="Enter your API key" />
+      <div class="help-text">
+        Your API key is stored securely in the database. 
+        {% if llm_has_key %}
+          <strong>API key is currently set.</strong>
+        {% else %}
+          <strong>No API key set.</strong> LLM features will not work without an API key.
+        {% endif %}
+      </div>
+    </div>
+
+    <button type="submit">Save Settings</button>
+  </form>
+
+  {% if feedback_stats %}
+  <h2 style="margin-top: 2rem;">Feedback Statistics</h2>
+  <div class="status status-info">
+    <strong>Total Feedback:</strong> {{ feedback_stats.get('good', 0) + feedback_stats.get('bad', 0) }}<br>
+    <strong>Positive:</strong> {{ feedback_stats.get('good', 0) }}<br>
+    <strong>Negative:</strong> {{ feedback_stats.get('bad', 0) }}
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+    <h3>Privacy & Security</h3>
+    <ul>
+      <li><strong>No Personal Data:</strong> Only aggregate demographic statistics are sent to LLM APIs (e.g., "35% children, 20% newcomers").</li>
+      <li><strong>No Identifiers:</strong> Names, usernames, emails, or any personal information are never included.</li>
+      <li><strong>Opt-In Only:</strong> LLM features are disabled by default and must be explicitly enabled by admin.</li>
+      <li><strong>Secure Storage:</strong> API keys are stored in the database, not in code or environment variables.</li>
+    </ul>
+  </div>
+</body>
+</html>
+

@@ -1,0 +1,40 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 2rem; }
+    .card { border: 1px solid #eee; border-radius: 8px; padding: 1rem; max-width: 400px; }
+    img { border: 1px solid #ddd; padding: 6px; border-radius: 6px; margin-top: 1rem; }
+    button { margin-top: 1rem; padding: 0.5rem 0.8rem; border-radius: 6px; border: none; background: #0a7; color: #fff; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Welcome, {{ user.name }}</h1>
+
+  <div class="card">
+    <p><strong>Name:</strong> {{ user.name }}</p>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Age:</strong> {{ user.age }}</p>
+    <p><strong>Gender:</strong> {{ user.gender }}</p>
+    <p><strong>QR Code:</strong></p>
+    <img src="{{ user.qr_path }}" alt="QR for {{ user.username }}" width="150" height="150">
+  </div>
+
+  <div class="card" style="margin-top: 1rem;">
+    <h2 style="margin-top: 0;">Your Visit History</h2>
+    <p><strong>Total Visits:</strong> {{ visit_stats.total_visits }}</p>
+    <p><strong>Last Visit:</strong> {{ visit_stats.last_visit if visit_stats.last_visit else 'Never' }}</p>
+    <p><strong>This Month:</strong> {{ visit_stats.visits_this_month }} visits</p>
+    <p><strong>Last 30 Days:</strong> {{ visit_stats.visits_last_30 }} visits</p>
+  </div>
+
+  <form method="post" action="/logout">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <button type="submit">Logout</button>
+  </form>
+</body>
+</html>

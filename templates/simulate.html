@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attendance Simulator</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 2rem; }
+    form { display: grid; gap: .75rem; max-width: 380px; }
+    label { display: grid; gap: .25rem; }
+    input, select { padding: .6rem .75rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+    button { padding: .7rem .9rem; border: none; border-radius: 6px; background: #0a7; color: #fff; font-weight: 600; cursor: pointer; }
+    a { color: #0a7; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <a href="/admin">← Back to Admin</a>
+  <h1>Attendance Simulator</h1>
+  <p>Generate synthetic attendees for today. You can submit multiple batches.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <label>
+      <span>Count</span>
+      <input type="number" name="count" min="1" value="10" required />
+    </label>
+    <label>
+      <span>Age range</span>
+      <div style="display:flex; gap:.5rem;">
+        <input type="number" name="age_min" min="0" value="10" style="flex:1" required />
+        <input type="number" name="age_max" min="1" value="70" style="flex:1" required />
+      </div>
+    </label>
+    <label>
+      <span>Gender</span>
+      <select name="gender">
+        <option>Random</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Non-binary</option>
+        <option>Other</option>
+        <option>Prefer not to say</option>
+      </select>
+    </label>
+    <label>
+      <span>Newcomers (%)</span>
+      <input type="number" name="newcomer_percent" min="0" max="100" value="20" />
+    </label>
+    <label>
+      <span>Frequent visitors (%)</span>
+      <input type="number" name="frequent_percent" min="0" max="100" value="50" />
+    </label>
+    <button type="submit">Simulate</button>
+  </form>
+</body>
+</html>

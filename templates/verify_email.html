@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8" />
+  <title>Email Verification</title>
+  <style>body{font-family:system-ui;padding:2rem;}form{display:grid;gap:1rem;max-width:320px;}input{padding:0.6rem;font-size:1.05rem;}button{padding:0.7rem;background:#0a7;color:#fff;border-radius:5px;border:none;font-weight:bold;}</style></head>
+<body>
+  <h2>Verify Your Email</h2>
+  <p>Check your email for a verification code.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <input type="text" name="code" pattern="\d{6}" maxlength="6" required placeholder="Verification code">
+    <button type="submit">Verify Email</button>
+  </form>
+</body></html>
